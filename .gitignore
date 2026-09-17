@@ -1,0 +1,68 @@
+# Laravel Framework
+/vendor/
+/node_modules/
+/public/storage
+/storage/*.key
+/.idea/
+/.vscode/
+/*.sublime-workspace
+/*.sublime-project
+
+# Laravel specific
+.env
+.env.backup
+.env.local
+.env.*.local
+Homestead.yaml
+Homestead.json
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+pnpm-debug.log
+
+# Logs and debug
+/storage/logs/*.log
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/bootstrap/cache/*.php
+
+# Ignore compiled assets
+/public/hot
+/public/css/app.css
+/public/js/app.js
+/public/mix-manifest.json
+/public/vendor
+
+# Ignore IDE files
+/.idea
+/.vscode
+*.sublime-workspace
+*.sublime-project
+
+# OS generated files
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+*.tmp
+
+# Composer PHAR
+/composer.phar
+
+# PHPUnit
+.phpunit.result.cache
+
+# npm / yarn / pnpm
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Optional: ignore environment-specific configs
+.env.testing
+.env.staging
+.env.production
+
+# Deploy
+deploy
+docs

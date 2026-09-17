@@ -1,0 +1,113 @@
+<section class="product_popup_modal">
+  <div class="modal fade" id="product-{{ $product->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-body">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            <i class="far fa-times"></i>
+          </button>
+
+          <div class="row">
+            <div class="col-xl-6 col-12 col-sm-10 col-md-8 col-lg-6 m-auto display">
+              <div class="wsus__quick_view_img">
+
+                @if ($product->video_link)
+                  <a class="venobox wsus__pro_det_video" data-autoplay="true" data-vbtype="video"
+                    href="{{ $product->video_link }}"><i class="fas fa-play"></i></a>
+                @endif
+
+                <div class="row modal_slider">
+                  <div class="col-xl-12">
+                    <div class="modal_slider_img">
+                      <img src="{{ asset($product->thumb_image) }}" alt="product" class="img-fluid w-100">
+                    </div>
+                  </div>
+
+                  @foreach ($product->productImagesGallery as $image)
+                    <div class="col-xl-12">
+                      <div class="modal_slider_img">
+                        <img src="{{ asset($image->image) }}" alt="product" class="img-fluid w-100">
+                      </div>
+                    </div>
+                  @endforeach
+                </div>
+              </div>
+            </div>
+
+            <div class="col-xl-6 col-12 col-sm-12 col-md-12 col-lg-6">
+              <div class="wsus__pro_details_text">
+                <a class="title" href="javascript:void(0)">{{ $product->name }}</a>
+
+                @if ($product->qty > 0)
+                  <p class="wsus__stock_area">
+                    <span class="in_stock">Còn hàng</span> ({{ $product->qty }} sản phẩm)
+                  </p>
+                @elseif ($product->qty === 0)
+                  <p class="wsus__stock_area"><span class="in_stock">Hết hàng</span></p>
+                @endif
+
+                @if (checkDiscount($product))
+                  <h4>{{ formatCurrency($product->offer_price) }} <del>{{ formatCurrency($product->price) }}</del></h4>
+                @else
+                  <h4>{{ formatCurrency($product->price) }}</h4>
+                @endif
+
+                <p class="review">
+                  {!! rating($product->reviews, 'rating') !!}
+                  <span>({{ count($product->reviews) }} đánh giá)</span>
+                </p>
+
+                <p class="description">{!! limitText($product->short_description, 250) !!}</p>
+
+                <div class="product-card">
+                  <form action="" class="shopping-cart-form">
+                    <div class="wsus__selectbox">
+                      <div class="row">
+                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+
+                        @foreach ($product->variants as $variant)
+                          @if ($variant->status !== 0)
+                            <div class="col-xl-6 col-sm-6">
+                              <h5 class="mb-2">{{ $variant->name }}:</h5>
+
+                              <select class="select_2" name="variants_items[]">
+                                @foreach ($variant->productVariantItems as $variantItem)
+                                  @if ($variantItem->status !== 0)
+                                    <option {{ $variantItem->is_default === 1 ? 'selected' : '' }}
+                                      value="{{ $variantItem->id }}">{{ $variantItem->name }}
+                                      ({{ formatCurrency($variantItem->price) }})
+                                    </option>
+                                  @endif
+                                @endforeach
+                              </select>
+                            </div>
+                          @endif
+                        @endforeach
+                      </div>
+                    </div>
+
+                    <div class="wsus__quentity">
+                      <h5 style="margin-right: 5px;">Số lượng:</h5>
+                      <div class="select_number">
+                        <input class="number_area" name="qty" type="text" min="1" max="100"
+                          value="1" />
+                      </div>
+                    </div>
+
+                    <ul class="wsus__button_area">
+                      <li><button type="submit" class="add_cart">Thêm vào giỏ hàng</button></li>
+                      <li><a href="#" class="add_to_wishlist" data-id="{{ $product->id }}">
+                          <i class="{{ wishlistIcon($product->id) }} fa-heart"></i></a></li>
+                    </ul>
+                  </form>
+                </div>
+
+                <p class="brand_model"><span>Thương hiệu:</span> {{ $product->brand->name }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

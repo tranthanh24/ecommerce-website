@@ -1,0 +1,1 @@
+window.Echo&&typeof USER<"u"&&(USER!=null&&USER.id)&&window.Echo.private(`chat.${USER.id}`).listen("MessageEvent",e=>{renderMessage(e),document.querySelectorAll(".seller-profile").forEach(i=>{if(i.dataset.id==e.sender_id){const s=i.querySelector(".wsus_chat_list_img");s&&s.classList.add("msg-notification")}})});

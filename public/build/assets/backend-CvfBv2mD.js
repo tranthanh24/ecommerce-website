@@ -1,0 +1,1 @@
+window.Echo&&typeof USER<"u"&&(USER!=null&&USER.id)&&window.Echo.private(`chat.${USER.id}`).listen("MessageEvent",e=>{renderMessage(e),document.querySelectorAll(".user-profile").forEach(i=>{if(i.dataset.id==e.sender_id){const d=i.querySelector(".user-image");d&&d.classList.add("msg-notification")}})});

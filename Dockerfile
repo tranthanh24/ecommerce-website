@@ -4,11 +4,9 @@ FROM php:8.3-fpm-bookworm AS php-base
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
-        libonig-dev libcurl4-openssl-dev libxml2-dev libsqlite3-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" \
-        pdo_mysql pdo_sqlite mbstring zip bcmath gd curl \
-        dom simplexml xml xmlreader xmlwriter opcache \
+        pdo_mysql zip bcmath gd opcache \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /var/www
@@ -61,6 +59,7 @@ EXPOSE 9000
 
 CMD ["php-fpm"]
 
+# Nginx web server
 FROM nginxinc/nginx-unprivileged:stable-alpine AS web
 
 WORKDIR /var/www

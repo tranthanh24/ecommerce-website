@@ -9,10 +9,19 @@ services:
     environment:
       APP_ENV: production
       APP_DEBUG: "false"
-      # Use Docker's host gateway for an existing database on the host.
-      DB_HOST: ${DOCKER_DB_HOST:-host.docker.internal}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:?Set DB_DATABASE in .env}
+      DB_USERNAME: ${DB_USERNAME:?Set a non-root DB_USERNAME in .env}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      DB_ROOT_PASSWORD: ""
+
+    depends_on:
+      db:
+        condition: service_healthy
+
     volumes:
       - uploads:/var/www/public/uploads
       - storage:/var/www/storage
@@ -34,6 +43,30 @@ services:
         volume:
           nocopy: true
 
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:?Set DB_DATABASE in .env}
+      MYSQL_USER: ${DB_USERNAME:?Set a non-root DB_USERNAME in .env}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Set DB_ROOT_PASSWORD in .env}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          MYSQL_PWD="$${MYSQL_PASSWORD}"
+          mysql --protocol=TCP -h 127.0.0.1
+          -u "$${MYSQL_USER}" -D "$${MYSQL_DATABASE}"
+          -e 'SELECT 1' > /dev/null
+      start_period: 60s
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
 volumes:
   uploads:
   storage:
+  mysql-data:

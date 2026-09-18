@@ -26,6 +26,8 @@ database/*.sqlite
 database/*.sqlite-*
 deploy
 docs
+k8s
+*.log
 tests
 .phpunit.cache
 .phpunit.result.cache

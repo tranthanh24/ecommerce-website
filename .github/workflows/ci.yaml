@@ -72,3 +72,42 @@ jobs:
 
       - name: Security audit Composer dependencies
         run: composer audit
+
+  trivy:
+    name: Trivy security scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v7
+
+      - name: Scan dependencies, secrets and misconfigurations
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          scanners: "vuln,secret,misconfig"
+          severity: "HIGH,CRITICAL"
+          format: "table"
+          exit-code: "1"
+          timeout: "10m"
+
+  semgrep:
+    name: Semgrep code scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: semgrep/semgrep:1.177.0
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v7
+
+      - name: Scan source code
+        run: >-
+          semgrep scan
+          --config p/security-audit
+          --config p/php
+          --error
+          --metrics=off
+          --disable-version-check
+          .

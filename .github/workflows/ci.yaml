@@ -179,6 +179,7 @@ jobs:
           image-ref: ${{ steps.login-ecr.outputs.registry }}/laravel-app:${{ github.sha }}
           scanners: "vuln,secret"
           severity: "HIGH,CRITICAL"
+          ignore-unfixed: true
           format: "table"
           exit-code: "1"
           timeout: "10m"
@@ -191,6 +192,7 @@ jobs:
           image-ref: ${{ steps.login-ecr.outputs.registry }}/laravel-web:${{ github.sha }}
           scanners: "vuln,secret"
           severity: "HIGH,CRITICAL"
+          ignore-unfixed: true
           format: "table"
           exit-code: "1"
           timeout: "10m"

@@ -1,5 +1,5 @@
 # Shared PHP platform for dependency installation and production.
-FROM php:8.3-fpm-bookworm AS php-base
+FROM php:8.3-fpm-trixie AS php-base
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \

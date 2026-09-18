@@ -52,6 +52,8 @@ COPY --from=frontend /app/public/build ./public/build
 RUN mkdir -p public/uploads \
     && chown -R www-data:www-data storage bootstrap/cache public/uploads
 
+USER www-data
+
 # Serve public/ through an Nginx service.
 EXPOSE 9000
 

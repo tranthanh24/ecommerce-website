@@ -1,0 +1,39 @@
+services:
+  app:
+    build:
+      context: .
+      target: runtime
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      # Use Docker's host gateway for an existing database on the host.
+      DB_HOST: ${DOCKER_DB_HOST:-host.docker.internal}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - uploads:/var/www/public/uploads
+      - storage:/var/www/storage
+
+  web:
+    build:
+      context: .
+      target: web
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "${HTTP_PORT:-8080}:8080"
+    volumes:
+      - type: volume
+        source: uploads
+        target: /var/www/public/uploads
+        read_only: true
+        volume:
+          nocopy: true
+
+volumes:
+  uploads:
+  storage:

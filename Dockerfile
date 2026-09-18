@@ -43,6 +43,8 @@ RUN npm run build
 
 FROM php-base AS runtime
 
+COPY docker/php/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
+
 ENV APP_ENV=production \
     APP_DEBUG=false
 
@@ -58,3 +60,17 @@ USER www-data
 EXPOSE 9000
 
 CMD ["php-fpm"]
+
+FROM nginxinc/nginx-unprivileged:stable-alpine AS web
+
+WORKDIR /var/www
+
+COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+
+COPY --from=vendor /var/www/public ./public
+
+COPY --from=frontend /app/public/build ./public/build
+
+USER nginx
+
+EXPOSE 8080

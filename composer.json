@@ -8,7 +8,7 @@
   ],
   "license": "MIT",
   "require": {
-    "php": "^8.1",
+    "php": "^8.3",
     "anayarojo/shoppingcart": "^4.2",
     "guzzlehttp/guzzle": "^7.2",
     "laravel-lang/lang": "^15.2",

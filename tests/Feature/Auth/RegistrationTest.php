@@ -12,9 +12,10 @@ class RegistrationTest extends TestCase
 
     public function test_registration_screen_can_be_rendered(): void
     {
-        $response = $this->get('/register');
+        // Registration is the second form on the existing login page.
+        $response = $this->get('/login');
 
-        $response->assertStatus(200);
+        $response->assertStatus(200)->assertSee(route('register'), false);
     }
 
     public function test_new_users_can_register(): void

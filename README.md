@@ -13,7 +13,7 @@ Website thương mại điện tử xây dựng bằng Laravel, hỗ trợ khác
 ## Công nghệ
 
 ![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
-![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=for-the-badge&logo=php&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-8.3%2B-777BB4?style=for-the-badge&logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![Blade](https://img.shields.io/badge/Blade-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)
@@ -22,18 +22,18 @@ Website thương mại điện tử xây dựng bằng Laravel, hỗ trợ khác
 
 ## Cài đặt
 
-Cần PHP 8.2+, Composer, Node.js 20+ và MySQL.
+Cần PHP 8.3+, Composer 2, Node.js 24 và MySQL.
 
 ```bash
 git clone https://github.com/tranthanh24/ecommerce-website.git
 cd ecommerce-website
 composer install --no-scripts
-npm install
+npm ci
 ```
 
 Sao chép `.env.example` thành `.env`, sau đó chỉnh `APP_URL` và thông tin kết nối database.
 
-**Lưu ý:** Cần khôi phục database của dự án trước khi chạy Artisan vì ứng dụng đọc các bảng cấu hình ngay khi khởi động. Repository chưa kèm file SQL.
+Tạo database trống hoặc khôi phục database có sẵn rồi cấu hình kết nối. Artisan có thể chạy trước khi các bảng cấu hình được tạo; website vẫn cần dữ liệu cấu hình cửa hàng để hoạt động đầy đủ. Repository chưa kèm file SQL.
 
 Sau khi database sẵn sàng:
 

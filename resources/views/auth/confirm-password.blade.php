@@ -1,25 +1,35 @@
-<x-guest-layout>
-  <div class="mb-4 text-sm text-gray-600">
-    {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
-  </div>
+@extends('frontend.layouts.master')
 
-  <form method="POST" action="{{ route('password.confirm') }}">
-    @csrf
+@section('title', 'Xác nhận mật khẩu')
 
-    <!-- Password -->
-    <div>
-      <x-input-label for="password" :value="__('Password')" />
+@section('content')
+  <section id="wsus__login_register">
+    <div class="container py-5">
+      <div class="mb-4 text-muted">
+        {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
+      </div>
 
-      <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required
-        autocomplete="current-password" />
+      <form method="POST" action="{{ route('password.confirm') }}">
+        @csrf
 
-      <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <!-- Password -->
+        <div>
+          <label for="password">{{ __('Password') }}</label>
+
+          <input id="password" class="form-control mt-1" type="password" name="password" required
+            autocomplete="current-password" />
+
+          @error('password')
+            <div class="text-danger mt-2" role="alert">{{ $message }}</div>
+          @enderror
+        </div>
+
+        <div class="d-flex justify-content-end mt-4">
+          <button type="submit" class="common_btn mt-3">
+            {{ __('Confirm') }}
+          </button>
+        </div>
+      </form>
     </div>
-
-    <div class="flex justify-end mt-4">
-      <x-primary-button>
-        {{ __('Confirm') }}
-      </x-primary-button>
-    </div>
-  </form>
-</x-guest-layout>
+  </section>
+@endsection

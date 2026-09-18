@@ -9,6 +9,7 @@ use App\Models\GeneralSetting;
 use App\Models\EmailConfiguration;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -29,12 +30,14 @@ class AppServiceProvider extends ServiceProvider
   {
     Paginator::useBootstrapFive();
 
-    $logoSetting = LogoSetting::first();
-    $generalSetting = GeneralSetting::first();
-    $mailSetting = EmailConfiguration::first();
-    $pusherSetting = PusherSetting::first();
+    // Artisan must be able to boot before the first migration has run.
+    $hasTable = fn (string $table): bool => !$this->app->runningInConsole() || Schema::hasTable($table);
+    $logoSetting = $hasTable('logo_settings') ? LogoSetting::first() : null;
+    $generalSetting = $hasTable('general_settings') ? GeneralSetting::first() : null;
+    $mailSetting = $hasTable('email_configurations') ? EmailConfiguration::first() : null;
+    $pusherSetting = $hasTable('pusher_settings') ? PusherSetting::first() : null;
 
-    $coupon = Coupon::where('status', 1)->first();
+    $coupon = $hasTable('coupons') ? Coupon::where('status', 1)->first() : null;
 
     // Set the default timezone
     $timezone = config('app.timezone');

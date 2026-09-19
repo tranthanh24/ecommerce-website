@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: ecommerce
+data:
+  APP_ENV: production
+  APP_DEBUG: "false"
+  APP_URL: https://example.com
+  LOG_CHANNEL: stderr
+  DB_CONNECTION: mysql
+  DB_HOST: mysql.database.svc.cluster.local
+  DB_PORT: "3306"
+  DB_DATABASE: ecommerce
+  DB_USERNAME: ecommerce
+  CACHE_DRIVER: file
+  SESSION_DRIVER: file
+  SESSION_SECURE_COOKIE: "true"
+  QUEUE_CONNECTION: sync
+  BROADCAST_DRIVER: pusher
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: ecommerce
+data:
+  default.conf: |
+    # Only expose this service through cloudflared; it supplies this header.
+    map $http_x_forwarded_proto $origin_https {
+        default off;
+        https on;
+    }
+    server {
+        listen 8080;
+        server_name _;
+        root /var/www/public;
+        index index.php;
+        charset utf-8;
+        client_max_body_size 20m;
+
+        location = /healthz {
+            access_log off;
+            return 200 "ok\n";
+        }
+        location / {
+            try_files $uri $uri/ /index.php?$query_string;
+        }
+        location = /index.php {
+            include fastcgi_params;
+            fastcgi_pass app:9000;
+            fastcgi_param SCRIPT_FILENAME $document_root/index.php;
+            fastcgi_param HTTPS $origin_https;
+        }
+        location ~* \.php(?:/|$) {
+            return 404;
+        }
+        location ~ /\.(?!well-known).* {
+            deny all;
+        }
+    }

@@ -94,6 +94,7 @@ jobs:
           format: "table"
           exit-code: "1"
           timeout: "10m"
+          version: "v0.75.0"
 
   # Analyze source code with security and PHP rules; findings fail this job.
   semgrep:
@@ -178,6 +179,7 @@ jobs:
           format: "table"
           exit-code: "1"
           timeout: "10m"
+          version: "v0.75.0"
 
       - name: Scan Nginx image
         uses: aquasecurity/trivy-action@v0.36.0
@@ -190,6 +192,7 @@ jobs:
           format: "table"
           exit-code: "1"
           timeout: "10m"
+          version: "v0.75.0"
 
       # Publish SHA-tagged images to existing ECR repositories.
       - name: Push Laravel image

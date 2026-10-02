@@ -51,6 +51,7 @@ spec:
               mkdir -p /storage/framework/cache/data /storage/framework/sessions /storage/framework/views /storage/logs
           securityContext:
             allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
             capabilities:
               drop: [ALL]
           volumeMounts:
@@ -69,6 +70,7 @@ spec:
                 name: app-secret
           securityContext:
             allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
             capabilities:
               drop: [ALL]
           ports:
@@ -93,6 +95,8 @@ spec:
               mountPath: /var/www/public/uploads
             - name: storage
               mountPath: /var/www/storage
+            - name: tmp
+              mountPath: /tmp
       volumes:
         - name: uploads
           persistentVolumeClaim:
@@ -100,3 +104,6 @@ spec:
         - name: storage
           persistentVolumeClaim:
             claimName: app-storage
+        - name: tmp
+          emptyDir:
+            sizeLimit: 256Mi

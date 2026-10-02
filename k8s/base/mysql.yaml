@@ -29,9 +29,20 @@ spec:
         app: mysql
     spec:
       automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: mysql
           image: mysql:8.4
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
           env:
             - name: MYSQL_DATABASE
               value: ecommerce
@@ -53,6 +64,12 @@ spec:
             - name: data
               mountPath: /var/lib/mysql
               subPath: mysql
+            - name: mysql-files
+              mountPath: /var/lib/mysql-files
+            - name: mysql-run
+              mountPath: /var/run/mysqld
+            - name: tmp
+              mountPath: /tmp
           startupProbe:
             exec:
               command: [sh, -c, "mysqladmin ping -h 127.0.0.1 --silent"]
@@ -75,6 +92,14 @@ spec:
             limits:
               cpu: "1"
               memory: 1Gi
+      volumes:
+        - name: mysql-files
+          emptyDir: {}
+        - name: mysql-run
+          emptyDir: {}
+        - name: tmp
+          emptyDir:
+            sizeLimit: 256Mi
   volumeClaimTemplates:
     - metadata:
         name: data

@@ -49,6 +49,7 @@ spec:
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
             capabilities:
               drop: [ALL]
           ports:
@@ -76,6 +77,8 @@ spec:
             - name: uploads
               mountPath: /var/www/public/uploads
               readOnly: true
+            - name: tmp
+              mountPath: /tmp
       volumes:
         - name: config
           configMap:
@@ -83,3 +86,6 @@ spec:
         - name: uploads
           persistentVolumeClaim:
             claimName: uploads
+        - name: tmp
+          emptyDir:
+            sizeLimit: 256Mi

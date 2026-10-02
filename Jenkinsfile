@@ -1,20 +1,24 @@
 pipeline {
     agent any
 
-    // Keep deployments serialized and prevent a stuck rollout from occupying Jenkins indefinitely.
     options {
         skipDefaultCheckout(true)
         disableConcurrentBuilds()
-        timeout(time: 30, unit: 'MINUTES')
+        timeout(time: 45, unit: 'MINUTES')
         timestamps()
     }
 
-    // CI passes the immutable commit SHA after both images have been published to ECR.
+    // Deploy images built from this commit.
     parameters {
         string(
             name: 'IMAGE_TAG',
             defaultValue: '',
             description: 'Full Git commit SHA already published to both ECR repositories'
+        )
+        booleanParam(
+            name: 'DEPLOY_MONITORING',
+            defaultValue: false,
+            description: 'Install or update the Prometheus and Grafana monitoring stack'
         )
     }
 
@@ -22,6 +26,7 @@ pipeline {
         AWS_REGION = 'ap-southeast-1'
         APP_NAMESPACE = 'ecommerce'
         DB_NAMESPACE = 'database'
+        MONITORING_NAMESPACE = 'monitoring'
         APP_REPOSITORY = 'laravel-app'
         WEB_REPOSITORY = 'laravel-web'
     }
@@ -38,7 +43,6 @@ pipeline {
             }
         }
 
-        // Deploy the manifests from the exact commit that produced the container images.
         stage('Checkout release') {
             steps {
                 deleteDir()
@@ -55,7 +59,6 @@ pipeline {
             }
         }
 
-        // Confirm the agent has the required CLIs and both release images exist in ECR.
         stage('Verify tools and images') {
             steps {
                 withCredentials([
@@ -74,7 +77,6 @@ pipeline {
                             command -v sed >/dev/null
                         '''
 
-                        // Derive the private registry address so the AWS account ID is not stored in Git.
                         def awsAccountId = sh(
                             script: 'set +x; aws sts get-caller-identity --query Account --output text',
                             returnStdout: true
@@ -104,7 +106,7 @@ pipeline {
             }
         }
 
-        // Create namespaces and verify manually managed application/database secrets are present.
+        // Create namespaces and verify manually managed application/database secrets.
         stage('Prepare Kubernetes') {
             steps {
                 withCredentials([
@@ -126,7 +128,7 @@ pipeline {
             }
         }
 
-        // ECR login tokens expire, so refresh the image pull secret for every deployment.
+        // Refresh the expiring ECR pull token.
         stage('Refresh ECR pull secret') {
             steps {
                 withCredentials([
@@ -151,7 +153,6 @@ pipeline {
             }
         }
 
-        // Apply shared configuration and storage, then wait until MySQL accepts connections.
         stage('Deploy database and shared resources') {
             steps {
                 withCredentials([
@@ -169,7 +170,6 @@ pipeline {
             }
         }
 
-        // Update both the Laravel init container and runtime container, then migrate the database.
         stage('Deploy Laravel app') {
             steps {
                 withCredentials([
@@ -190,7 +190,6 @@ pipeline {
             }
         }
 
-        // Publish the matching Nginx image only after the app and migrations are ready.
         stage('Deploy web server') {
             steps {
                 withCredentials([
@@ -205,6 +204,37 @@ pipeline {
 
                         kubectl -n "$APP_NAMESPACE" rollout status deployment/web --timeout=300s
                         kubectl -n "$APP_NAMESPACE" get deployment app web
+                    '''
+                }
+            }
+        }
+
+        // Install monitoring only when selected.
+        stage('Deploy monitoring') {
+            when {
+                expression { params.DEPLOY_MONITORING }
+            }
+            steps {
+                withCredentials([
+                    file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')
+                ]) {
+                    sh '''
+                        set -eu
+                        command -v helm >/dev/null
+                        kubectl -n "$MONITORING_NAMESPACE" get secret grafana-admin \
+                            -o go-template='{{if and (index .data "admin-user") (index .data "admin-password")}}ok{{end}}' \
+                            | grep -qx ok
+                        kubectl get storageclass local-path >/dev/null
+
+                        helm upgrade --install monitoring \
+                            oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack \
+                            --version 91.8.1 \
+                            --namespace "$MONITORING_NAMESPACE" \
+                            --values k8s/monitoring/values.yaml \
+                            --atomic --wait-for-jobs --timeout 15m
+
+                        helm --namespace "$MONITORING_NAMESPACE" status monitoring
+                        kubectl -n "$MONITORING_NAMESPACE" get pods,pvc,services
                     '''
                 }
             }

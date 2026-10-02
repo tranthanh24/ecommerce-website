@@ -6,7 +6,7 @@ metadata:
 data:
   APP_ENV: production
   APP_DEBUG: "false"
-  APP_URL: https://example.com
+  APP_URL: http://192.168.48.50:8080
   LOG_CHANNEL: stderr
   DB_CONNECTION: mysql
   DB_HOST: mysql.database.svc.cluster.local
@@ -15,7 +15,7 @@ data:
   DB_USERNAME: ecommerce
   CACHE_DRIVER: file
   SESSION_DRIVER: file
-  SESSION_SECURE_COOKIE: "true"
+  SESSION_SECURE_COOKIE: "false"
   QUEUE_CONNECTION: sync
   BROADCAST_DRIVER: pusher
 ---

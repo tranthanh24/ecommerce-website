@@ -63,6 +63,11 @@ CMD ["php-fpm"]
 # Nginx web server
 FROM nginxinc/nginx-unprivileged:stable-alpine AS web
 
+USER root
+
+# Install the patched PCRE2 release before returning to the unprivileged user.
+RUN apk upgrade --no-cache pcre2
+
 WORKDIR /var/www
 
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf

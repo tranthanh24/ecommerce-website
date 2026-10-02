@@ -56,13 +56,21 @@ class AppServiceProvider extends ServiceProvider
       Config::set('mail.from.address', $mailSetting->email);
     }
 
-    // Set pusher config
-    if ($pusherSetting) {
+    // Load Pusher from the database when it is fully configured.
+    $hasPusherConfig = $pusherSetting
+      && filled($pusherSetting->app_id)
+      && filled($pusherSetting->key)
+      && filled($pusherSetting->secret)
+      && filled($pusherSetting->cluster);
+
+    if ($hasPusherConfig) {
       Config::set('broadcasting.connections.pusher.key', $pusherSetting->key);
       Config::set('broadcasting.connections.pusher.secret', $pusherSetting->secret);
       Config::set('broadcasting.connections.pusher.app_id', $pusherSetting->app_id);
       Config::set('broadcasting.connections.pusher.options.cluster', $pusherSetting->cluster);
       Config::set('broadcasting.connections.pusher.options.useTLS', true);
+    } elseif (Config::get('broadcasting.default') === 'pusher') {
+      Config::set('broadcasting.default', 'log');
     }
 
     // Share variables with all views
